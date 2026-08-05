@@ -1,0 +1,21 @@
+# build output
+/bin/
+/out/
+
+# local env and secrets
+.env
+.env.*
+!.env.example
+/keys/
+*.key
+*.asc
+*.gpg
+
+# pulled artifacts and cracked material
+founds_*.txt
+submission_*
+*.potfile
+
+# go
+*.test
+*.out

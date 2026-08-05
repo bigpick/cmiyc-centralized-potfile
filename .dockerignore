@@ -1,0 +1,21 @@
+# keep the build context small and secret-free
+.git
+.gitignore
+.github/
+.editorconfig
+docs/
+README.md
+CLAUDE.md
+LICENSE
+Makefile
+out/
+bin/
+*.asc
+*.gpg
+*.key
+*.potfile
+founds_*.txt
+submission_*
+.env
+.env.*
+!.env.example

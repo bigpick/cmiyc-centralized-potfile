@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" role="img" aria-label="CMIYC Pool banner">
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3ecd9"/>
+      <stop offset="1" stop-color="#e7dcc2"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0503f"/>
+      <stop offset="1" stop-color="#a4271b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- manila panel -->
+  <rect x="6" y="6" width="1188" height="288" rx="14" fill="url(#paper)" stroke="#c9b98f" stroke-width="2"/>
+  <!-- red top ribbon -->
+  <rect x="6" y="6" width="1188" height="12" rx="6" fill="#a4271b"/>
+
+  <!-- memo tab -->
+  <rect x="48" y="42" width="150" height="34" rx="6" fill="#a4271b"/>
+  <text x="123" y="65" text-anchor="middle" font-family="'Courier New', monospace" font-size="18" letter-spacing="3" fill="#f3ecd9">MEMO</text>
+
+  <!-- faint hash watermark -->
+  <text x="52" y="272" font-family="'Courier New', monospace" font-size="16" fill="#000000" opacity="0.06">$2b$05$a7f3c1d9e2b8:hunter2  //  deadbeefcafef00d:correcthorse  //  status: PENDING</text>
+
+  <!-- title -->
+  <text x="52" y="150" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="800" letter-spacing="1" fill="#26221d">CMIYC POOL</text>
+  <text x="54" y="190" font-family="'Courier New', monospace" font-size="21" letter-spacing="2" fill="#6b7a8f">CRACK ME IF YOU CAN  //  TEAM SUBMISSION POOL</text>
+  <text x="54" y="222" font-family="Arial, Helvetica, sans-serif" font-size="18" font-style="italic" fill="#8a8272">RE: 48 hours. dedupe. submit. repeat.</text>
+
+  <!-- generic red stapler (original art, no brand marks) -->
+  <g transform="translate(915,120)">
+    <ellipse cx="95" cy="92" rx="105" ry="12" fill="#000000" opacity="0.10"/>
+    <!-- base -->
+    <rect x="8" y="58" width="184" height="24" rx="10" fill="#7f1d1d"/>
+    <rect x="150" y="78" width="26" height="10" rx="3" fill="#5a1414"/>
+    <!-- lever / body -->
+    <g transform="rotate(-5 12 52)">
+      <rect x="0" y="30" width="188" height="30" rx="14" fill="url(#steel)"/>
+      <rect x="16" y="35" width="150" height="7" rx="3" fill="#f0897a" opacity="0.8"/>
+    </g>
+    <!-- hinge -->
+    <circle cx="12" cy="56" r="11" fill="#5a1414"/>
+    <circle cx="12" cy="56" r="4" fill="#2c0c0c"/>
+  </g>
+</svg>
