@@ -20,6 +20,41 @@
 The schema is applied idempotently on startup, so there is no separate migration
 step. Keep the service always-on for the contest window.
 
+## Startup and health checks
+
+The server binds its port and serves `/healthz` immediately, before the database
+is connected. It then connects to Postgres in the background and retries until
+it succeeds. This means:
+
+- The Railway health check passes as soon as the process is listening, so a slow
+  or cold-starting database does not fail the deploy.
+- `/healthz` returns `200` with a body like `{"status":"ok","db":true}`. The `db`
+  field is `false` until the database is connected and `true` afterward.
+- Data endpoints return `503 pool is starting up` until the database is ready,
+  then go live automatically. No restart is needed.
+
+## Troubleshooting a failed deploy
+
+If the deploy builds and pushes but the health check fails
+(`replicas never became healthy`), the process is either exiting on startup or
+cannot bind. Check the deploy logs for the first log line:
+
+- `POOL_TOKEN is not set` - set `POOL_TOKEN` in the service Variables.
+- `DATABASE_URL is not set` - add a Postgres database to the project and set this
+  service's `DATABASE_URL` variable to the reference `${{Postgres.DATABASE_URL}}`.
+- `database not ready, retrying in 5s` repeating - the app is up and healthy, but
+  it cannot reach Postgres. Confirm the Postgres service exists and that
+  `DATABASE_URL` points at it. The service stays healthy and starts working as
+  soon as the database is reachable.
+
+Quick check once deployed:
+
+```sh
+curl https://your-service.up.railway.app/healthz
+# {"status":"ok","db":true}   ->  ready
+# {"status":"ok","db":false}  ->  listening, database still connecting
+```
+
 ## Public vs private repository
 
 Nothing here requires a public repo. Keep it private for the least fuss.

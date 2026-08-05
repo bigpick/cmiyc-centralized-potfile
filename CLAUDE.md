@@ -116,8 +116,11 @@ the registered team key or the autoresponder drops it.
 - **Railway PORT.** `serve` must bind `0.0.0.0:$PORT`. Do not hardcode a port.
 - **Distroless has no shell.** The runtime image cannot do shell expansion; all
   config is read from the environment inside Go. Keep it that way.
-- **DB may lag the app on boot.** Railway has no `depends_on`, so `store.New`
-  retries for up to 60 seconds. Do not remove that loop.
+- **DB may lag the app on boot.** The server binds and serves `/healthz` first,
+  then connects to Postgres in a background retry loop (`connectStore` in
+  `cmd/cmiyc`). Data endpoints return 503 until the store is installed via
+  `SetStore`. Do not reintroduce a blocking DB connect before the listener binds;
+  that is what caused the original Railway health-check failure.
 
 ## Testing
 

@@ -21,6 +21,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	"github.com/zilla/cmiyc-pool/internal/client"
 	"github.com/zilla/cmiyc-pool/internal/server"
@@ -88,11 +89,11 @@ func cmdServe(args []string) error {
 		"shared bearer token required on every API call")
 	fs.Parse(args)
 
-	if *dsn == "" {
-		return fmt.Errorf("database-url is required (set DATABASE_URL)")
-	}
 	if *token == "" {
-		return fmt.Errorf("token is required (set POOL_TOKEN)")
+		return fmt.Errorf("POOL_TOKEN is not set. Generate one with `openssl rand -hex 32` and set it as a service variable")
+	}
+	if *dsn == "" {
+		return fmt.Errorf("DATABASE_URL is not set. On Railway, add a Postgres database and set this service's DATABASE_URL variable to ${{Postgres.DATABASE_URL}}")
 	}
 
 	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -100,18 +101,39 @@ func cmdServe(args []string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	st, err := store.New(ctx, *dsn)
+	srv, err := server.New(*token, log)
 	if err != nil {
 		return err
 	}
-	defer st.Close()
 
-	srv, err := server.New(st, *token, log)
-	if err != nil {
-		return err
+	// Connect to the database in the background so the HTTP listener (and the
+	// /healthz endpoint) binds immediately. A platform health check must see a
+	// listener within its window; the pool becomes ready as soon as the DB is
+	// reachable, and data endpoints return 503 until then.
+	go connectStore(ctx, srv, *dsn, log)
+
+	return srv.ListenAndServe(ctx, "0.0.0.0:"+*port)
+}
+
+// connectStore retries the database connection until it succeeds or the process
+// is shutting down, then installs the store so data endpoints go live.
+func connectStore(ctx context.Context, srv *server.Server, dsn string, log *slog.Logger) {
+	for {
+		st, err := store.New(ctx, dsn)
+		if err == nil {
+			srv.SetStore(st)
+			log.Info("database connected; pool ready")
+			<-ctx.Done()
+			st.Close()
+			return
+		}
+		log.Error("database not ready, retrying in 5s", "err", err)
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(5 * time.Second):
+		}
 	}
-	// Bind all interfaces so Railway's proxy can reach the container.
-	return srv.ListenAndServe("0.0.0.0:" + *port)
 }
 
 // --- send (upload) ---

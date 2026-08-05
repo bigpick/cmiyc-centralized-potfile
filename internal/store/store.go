@@ -36,35 +36,26 @@ type Store struct {
 	pool *pgxpool.Pool
 }
 
-// New connects to PostgreSQL, retries until reachable (Railway has no
-// depends_on, so the DB may lag the app on cold start), then applies the schema
-// idempotently.
+// New connects to PostgreSQL, verifies reachability with a bounded ping, and
+// applies the schema idempotently. It makes a single attempt and returns an
+// error on failure; the caller is responsible for retrying (the server boot
+// loop does this so the HTTP listener can come up first).
 func New(ctx context.Context, dsn string) (*Store, error) {
 	cfg, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("parse DATABASE_URL: %w", err)
 	}
 
-	var pool *pgxpool.Pool
-	deadline := time.Now().Add(60 * time.Second)
-	for {
-		pool, err = pgxpool.NewWithConfig(ctx, cfg)
-		if err == nil {
-			if pingErr := pool.Ping(ctx); pingErr == nil {
-				break
-			} else {
-				err = pingErr
-				pool.Close()
-			}
-		}
-		if time.Now().After(deadline) {
-			return nil, fmt.Errorf("database not reachable within 60s: %w", err)
-		}
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		case <-time.After(2 * time.Second):
-		}
+	pool, err := pgxpool.NewWithConfig(ctx, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("create pool: %w", err)
+	}
+
+	pingCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	if err := pool.Ping(pingCtx); err != nil {
+		pool.Close()
+		return nil, fmt.Errorf("ping database: %w", err)
 	}
 
 	if _, err := pool.Exec(ctx, schemaSQL); err != nil {
