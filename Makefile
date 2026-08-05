@@ -25,6 +25,11 @@ help: ## List available targets
 tidy: ## Resolve deps and write go.sum (needs network; run this first)
 	$(GO) mod tidy
 
+.PHONY: deps-upgrade
+deps-upgrade: ## Upgrade all Go dependencies to latest and re-tidy (needs network)
+	$(GO) get -u ./...
+	$(GO) mod tidy
+
 .PHONY: build
 build: ## Build the binary to ./bin/cmiyc
 	@mkdir -p $(BIN_DIR)

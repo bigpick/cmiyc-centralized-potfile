@@ -37,7 +37,12 @@ make check    # fmt + vet + test (run before every commit)
 make build    # -> ./bin/cmiyc
 make run      # cmiyc serve locally (needs DATABASE_URL and POOL_TOKEN)
 make docker   # build the distroless image
+make deps-upgrade  # go get -u ./... then go mod tidy (bump all Go deps)
 ```
+
+Routine dependency bumps (Go modules, Actions, the Docker base image) arrive as
+weekly Dependabot PRs; within-major bumps are normally safe to merge. Use
+`make deps-upgrade` when you want to pull everything forward at once locally.
 
 Run any mode directly during development:
 
