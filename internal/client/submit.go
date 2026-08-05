@@ -26,10 +26,10 @@ type SMTPConfig struct {
 
 // SubmitOptions configures a submit.
 type SubmitOptions struct {
-	Iter         string    // iteration token produced by pull (required)
-	Dir          string    // directory holding the pull artifacts
-	ContestEmail string    // overrides the address recorded in the sidecar
-	Subject      string    // email subject line
+	Iter         string // iteration token produced by pull (required)
+	Dir          string // directory holding the pull artifacts
+	ContestEmail string // overrides the address recorded in the sidecar
+	Subject      string // email subject line
 	SMTP         *SMTPConfig
 	Yes          bool      // skip the confirmation prompt (implied for SMTP auto-send)
 	In           io.Reader // confirmation input (os.Stdin)

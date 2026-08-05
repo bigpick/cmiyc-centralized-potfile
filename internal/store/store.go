@@ -245,8 +245,8 @@ type Stats struct {
 	TotalUnique     int64            `json:"total_unique"`
 	Submitted       int64            `json:"submitted"`
 	Pending         int64            `json:"pending"`
-	OverlapCracks   int64            `json:"overlap_cracks"`   // cracked independently by >1 teammate
-	FirstByAuthor   map[string]int64 `json:"first_by_author"`  // race-winning first cracks per teammate
+	OverlapCracks   int64            `json:"overlap_cracks"`    // cracked independently by >1 teammate
+	FirstByAuthor   map[string]int64 `json:"first_by_author"`   // race-winning first cracks per teammate
 	ContribByAuthor map[string]int64 `json:"contrib_by_author"` // total cracks each teammate has ever held
 }
 

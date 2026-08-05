@@ -8,8 +8,8 @@ import (
 func TestParseDedupesAndNormalizes(t *testing.T) {
 	in := strings.Join([]string{
 		"$2b$05$abc:hunter2",
-		"$2b$05$abc:hunter2", // exact dup, dropped
-		"",                   // blank, skipped
+		"$2b$05$abc:hunter2",          // exact dup, dropped
+		"",                            // blank, skipped
 		"deadbeef:pass:with:colons\r", // CRLF trimmed, colons preserved
 		"deadbeef:pass:with:colons",   // dup of the above after normalization
 		"aaaa:naïve",                  // unicode preserved
