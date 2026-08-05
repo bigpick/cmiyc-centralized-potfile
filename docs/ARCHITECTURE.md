@@ -127,6 +127,12 @@ wire. But the sidecar it writes contains only the `was_pending` ids. So a
 A plain `pull` is literally the `was_pending == true` slice of `--full`, sharing
 the same code path, so the two behaviors cannot drift apart.
 
+One operational caveat, not a correctness one: CMIYC only wants new cracks and
+can flag a team that sends a large proportion of repeats. Since `--full` re-ships
+everything, it is by definition mostly repeats. Keep the steady-state loop on
+plain `pull` (which sends only pending cracks) and reserve `--full` for genuine
+recovery.
+
 ## The bulk upsert
 
 `send` posts the entire potfile; the server parses, dedupes, and upserts it in

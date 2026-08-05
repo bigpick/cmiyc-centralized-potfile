@@ -64,12 +64,18 @@ Build and send a submission (operator only):
 
 ```sh
 export CMIYC_RECIPIENT_KEY=./keys/korelogic-2026-pub.asc
-export CMIYC_CONTEST_EMAIL=sub-2026@contest.korelogic.com   # confirm the real address
+export CMIYC_SIGN_KEY=./keys/team-private.asc                # required: CMIYC drops unsigned bundles
+export CMIYC_CONTEST_EMAIL=sub-2026@contest.korelogic.com
 
 cmiyc pull                     # bundles pending cracks to ./out/, prints an iter token
 # send ./out/submission_<iter>.asc to the contest address
 cmiyc submit --iter <iter>     # confirm the send, then mark those cracks submitted
 ```
+
+CMIYC accepts only PGP signed and encrypted submissions of `hash:plaintext`
+lines, and wants only new cracks. `pull` produces exactly that armored artifact;
+set `CMIYC_SIGN_KEY` to your registered team key or the autoresponder will drop
+the bundle.
 
 Deploying to Railway takes about five minutes. See [docs/DEPLOY.md](docs/DEPLOY.md).
 
@@ -101,14 +107,19 @@ watch -n 300 'cmiyc send'
 ### pull
 
 ```sh
-cmiyc pull            # only pending cracks
-cmiyc pull --full     # every crack: a daily failsafe sweep
+cmiyc pull            # only pending cracks (the steady-state loop)
+cmiyc pull --full     # every crack: emergency recovery only, see note
 ```
 
 Writes three artifacts to `./out/`: a cleartext `founds_<iter>.txt` backup, the
 encrypted `submission_<iter>.asc`, and a `submission_<iter>.ids.json` sidecar
 that records exactly which ids `submit` may mark. It transmits nothing and
 changes no state.
+
+CMIYC wants only new cracks and may flag a team that sends a large proportion of
+repeats. Plain `pull` sends only pending cracks, so use it as the normal loop.
+Reserve `--full` (which re-ships everything) for genuine recovery, such as when
+you suspect the autoresponder missed a batch, not as a routine sweep.
 
 ### submit
 
@@ -119,6 +130,11 @@ cmiyc submit --iter <iter> --smtp-host ...  # optional: sends the email itself
 
 Marks nothing until the send is confirmed. If it aborts, the next `pull`
 re-includes the cracks.
+
+Each `pull` batches all pending cracks into one bundle, so the natural pull then
+submit rhythm sends many cracks per email. Do not submit faster than once per
+minute; CMIYC may throttle teams that flood the autoresponder, especially with
+repeats or invalid data.
 
 ### stats
 
@@ -157,6 +173,12 @@ contest-weekend runbook are in [docs/DEPLOY.md](docs/DEPLOY.md).
 - [docs/DEPLOY.md](docs/DEPLOY.md) - Railway deploy, private-repo notes, security model, contest runbook
 - [docs/HASH_FORMATS.md](docs/HASH_FORMATS.md) - which formats upload raw and which need `hashcat --show`
 - [CLAUDE.md](CLAUDE.md) - repo conventions and orientation for contributors and agents
+
+Official contest references: the CMIYC 2026 [rules](https://contest-2026.korelogic.com/rules.html),
+[registration](https://contest-2026.korelogic.com/howto_register/), and
+[submission](https://contest-2026.korelogic.com/howto_submit/) pages are the
+authoritative source for the address, key, and format. Confirm them before the
+contest.
 
 ## Before you rely on it
 

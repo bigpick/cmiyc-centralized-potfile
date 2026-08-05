@@ -76,6 +76,13 @@ func RunPull(ctx context.Context, pool *Pool, opt PullOptions) error {
 	if err != nil {
 		return err
 	}
+	if len(signKey) == 0 {
+		fmt.Println("warning: no signing key set (--sign-key / CMIYC_SIGN_KEY).")
+		fmt.Println("         CMIYC requires submissions to be PGP signed AND encrypted;")
+		fmt.Println("         the autoresponder silently drops unsigned bundles. This")
+		fmt.Println("         bundle will be encrypt-only and is fine for testing, but")
+		fmt.Println("         set your registered team key before a real submission.")
+	}
 	enc, err := pgpcrypto.EncryptArmored([]byte(payload.String()), recipientKey, signKey, opt.Passphrase)
 	if err != nil {
 		return fmt.Errorf("encrypt payload: %w", err)

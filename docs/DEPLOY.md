@@ -73,8 +73,12 @@ If you want more than a single shared token:
 Before the contest opens:
 
 - Register the team PGP key with KoreLogic. This is the real critical path.
-- Confirm the live submission address and whether signing is required from the
-  current registration and submission HOWTO pages.
+- Import KoreLogic's submission key and confirm the submission address. It
+  follows the `sub-<year>@contest.korelogic.com` pattern, so 2026 is
+  `sub-2026@contest.korelogic.com`. Verify against the live howto pages.
+- CMIYC accepts only PGP signed and encrypted submissions, so set
+  `CMIYC_SIGN_KEY` to your registered team key. An encrypt-only bundle is
+  silently dropped by the autoresponder.
 - Deploy the pool, set `POOL_TOKEN`, share `POOL_URL` and the token with the team
   over a private channel.
 - Each teammate exports `POOL_URL`, `POOL_TOKEN`, and `CMIYC_AUTHOR`.
@@ -88,12 +92,21 @@ watch -n 300 'cmiyc send'   # re-upload the potfile every 5 minutes, idempotent
 Steady state (operator, tight loop):
 
 ```sh
-cmiyc pull                  # bundles pending, prints an iter token
+cmiyc pull                  # bundles only pending (new) cracks, prints an iter token
 # ...send ./out/submission_<iter>.asc to the contest address...
 cmiyc submit --iter <iter>  # confirm, then mark
 ```
 
-Once a day, or after any suspected dropped send, run the failsafe sweep:
+CMIYC wants only new cracks and can flag a team that sends a large proportion of
+repeats. The plain `pull` loop above only ever sends pending cracks, which keeps
+you clean. Do not submit faster than once per minute: the autoresponder may
+throttle teams that flood it. Since each `pull` batches all pending cracks into
+one email, a pull then submit every minute or few is both frequent enough and
+well within the limit. Read the autoresponder reply to confirm your mail was
+processed and to see which cracks were accepted.
+
+Reserve the failsafe sweep for genuine recovery (a suspected dropped batch), not
+routine use, because it re-ships everything:
 
 ```sh
 cmiyc pull --full

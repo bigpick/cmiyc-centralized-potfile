@@ -93,10 +93,17 @@ Invariants that must not regress (see `docs/ARCHITECTURE.md` for the reasoning):
    races in after the pull snapshot can never be falsely marked.
 5. **`--full` is a safe superset.** `pull --full` re-ships every crack but marks
    only the previously-pending subset (`was_pending`), so a full sweep is also a
-   correct baseline advance with no follow-up pull.
+   correct baseline advance with no follow-up pull. Operationally it is
+   recovery-only: CMIYC wants only new cracks and can flag a team that sends
+   mostly repeats, so the steady loop stays on plain `pull`.
 
 A "line" is opaque: it is never split on `:` because plaintexts legally contain
-colons and arbitrary UTF-8. The only normalization is trimming trailing CR/LF.
+colons and arbitrary UTF-8 (including `$HEX[...]` encodings). The only
+normalization is trimming trailing CR/LF.
+
+CMIYC accepts only PGP signed and encrypted submissions. `pull` warns if no
+signing key is set; a real submission must set `--sign-key` / `CMIYC_SIGN_KEY` to
+the registered team key or the autoresponder drops it.
 
 ## Gotchas
 

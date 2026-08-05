@@ -50,3 +50,27 @@ CMIYC challenge files sometimes include usernames, but the submission format
 does not require them. Send `hash:plaintext` lines. If your `--show` output
 includes extra fields, trim to the canonical `hash:plaintext` KoreLogic expects
 for that mode before uploading.
+
+## Submission format and encoding
+
+A few facts from the CMIYC submission rules that the tooling already respects:
+
+- Lines are `hash:plaintext`, one per line, and nothing else on the line.
+- Hashcat potfile output works directly, as does John the Ripper potfile format
+  and hashcat `--outfile-format=1,2` output.
+- `$HEX[...]` encoded plaintexts are accepted. Because the pool treats each line
+  as opaque bytes, a `$HEX[...]` plaintext passes through untouched.
+- The email must be a single PGP signed and encrypted message (equivalent to
+  `gpg -se`), either inline or attached to a plaintext email. Nested
+  encrypt-then-sign MIME structures are silently dropped. `pull` produces exactly
+  the single-blob armored artifact, so send `submission_<iter>.asc` as the body
+  or as an attachment and you are compliant.
+- Only new cracks are wanted. The steady-state `pull` sends only pending cracks;
+  see `docs/DEPLOY.md` for why `--full` is recovery-only.
+
+## Encrypted-file challenges
+
+If the contest includes encrypted files and you crack a file's password, do not
+submit the file-open password as a normal `hash:plaintext` crack. Open the file
+and follow the contest-specific instructions inside it. This is a scoring rule,
+not a tooling concern: just do not feed those passwords into `send`.
