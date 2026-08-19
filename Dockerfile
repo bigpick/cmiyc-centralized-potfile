@@ -3,7 +3,7 @@
 # ---- build stage ------------------------------------------------------------
 # Pinned to the Go toolchain the module targets. Bump both this tag and the
 # `go` directive in go.mod together.
-FROM golang:1.26.5-bookworm AS build
+FROM golang:1.26.6-bookworm AS build
 
 WORKDIR /src
 
