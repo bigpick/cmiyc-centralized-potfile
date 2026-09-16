@@ -12,7 +12,7 @@ go 1.26.5
 // go.sum. The version constraints below are floors, not exact pins.
 require (
 	github.com/ProtonMail/go-crypto v1.4.1
-	github.com/jackc/pgx/v5 v5.10.0
+	github.com/jackc/pgx/v5 v5.11.0
 )
 
 require (
