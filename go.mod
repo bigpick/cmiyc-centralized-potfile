@@ -11,7 +11,7 @@ go 1.26.5
 // machine before the first build; it will pin exact patch versions and write
 // go.sum. The version constraints below are floors, not exact pins.
 require (
-	github.com/ProtonMail/go-crypto v1.4.1
+	github.com/ProtonMail/go-crypto v1.5.2
 	github.com/jackc/pgx/v5 v5.10.0
 )
 
